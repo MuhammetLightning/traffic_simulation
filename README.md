@@ -1,6 +1,45 @@
 # Trafik Akışı Simülasyonu
 
-Bu proje, farklı yol türleri ve araç tipleri için trafik akışını simüle eden gelişmiş bir web uygulamasıdır. Simülasyon, gerçek dünya trafik koşullarını modelleyerek, trafik ışıklarının ve araç tiplerinin trafik akışı üzerindeki etkilerini analiz eder.
+Bu proje, farklı yol türleri ve araç tipleri için trafik akışını simüle eden bir web uygulamasıdır.
+
+## Özellikler
+
+- Farklı yol türleri (Şehir İçi, Otoyol)
+- Çeşitli araç tipleri (Otomobil, Otobüs, Kamyon)
+- Ayarlanabilir hız limiti
+- Gerçek zamanlı simülasyon
+- Görsel grafik çıktısı
+- İstatistiksel sonuçlar
+
+## Kurulum
+
+1. Gerekli paketleri yükleyin:
+
+```bash
+pip install -r requirements.txt
+```
+
+2. Uygulamayı çalıştırın:
+
+```bash
+streamlit run app.py
+```
+
+## Deployment
+
+Bu uygulama aşağıdaki platformlarda deploy edilebilir:
+
+- Streamlit Cloud
+- Render
+- Heroku
+- Railway
+
+## Teknolojiler
+
+- Python
+- Streamlit
+- NumPy
+- Matplotlib
 
 ## Özellikler
 
