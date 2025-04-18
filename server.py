@@ -43,5 +43,9 @@ def health_check():
 wsgi_app = app.wsgi_app
 
 if __name__ == '__main__':
+    # Render'ın port ayarını kullan
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False) 
+    # Debug modunu kapalı tut
+    debug = False
+    # Uygulamayı başlat
+    app.run(host='0.0.0.0', port=port, debug=debug) 

@@ -6,7 +6,7 @@ services:
     buildCommand: |
       pip install -r requirements.txt
       python -c "import matplotlib; matplotlib.use('Agg')"
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 0 server:app
+    startCommand: gunicorn server:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
@@ -14,7 +14,5 @@ services:
         value: production
       - key: FLASK_APP
         value: server.py
-      - key: PORT
-        value: 5000
     healthCheckPath: /health
     autoDeploy: true
