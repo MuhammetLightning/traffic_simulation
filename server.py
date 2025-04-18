@@ -2,6 +2,10 @@ from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 from traffic_simulation import simulate_traffic
 import os
+from dotenv import load_dotenv
+
+# Environment değişkenlerini yükle
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)  # CORS desteği ekle
@@ -30,8 +34,12 @@ def run_simulation():
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    return jsonify({"status": "healthy"})
+    return jsonify({
+        "status": "healthy",
+        "environment": os.getenv('FLASK_ENV', 'development')
+    })
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port) 
+    port = int(os.getenv('PORT', 5000))
+    debug = os.getenv('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=port, debug=debug) 
