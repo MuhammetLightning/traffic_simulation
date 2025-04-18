@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
-from traffic_simulation import simulate_traffic
+from traffic_simulation import run_simulation
 import os
 from dotenv import load_dotenv
 
@@ -29,7 +29,7 @@ def run_simulation():
     vehicle_type = data.get('vehicle_type', 'Otomobil')
     speed_limit = data.get('speed_limit', 50)
     
-    results = simulate_traffic(road_type, vehicle_type, speed_limit)
+    results = run_simulation(road_type, vehicle_type, speed_limit)
     return jsonify(results)
 
 @app.route('/health', methods=['GET'])

@@ -1,3 +1,6 @@
+// API URL'ini buraya ekleyin (Render'dan alınan URL)
+const API_URL = 'https://traffic-simulation-api.onrender.com';
+
 document.addEventListener('DOMContentLoaded', function() {
     // Form ve sonuç elementlerini seç
     const simulationForm = document.getElementById('simulationForm');
@@ -81,10 +84,9 @@ document.addEventListener('DOMContentLoaded', function() {
     simulationForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // Yükleme durumunu göster
-        startButton.classList.add('loading');
-        startButton.querySelector('.btn-text').style.visibility = 'hidden';
-        startButton.querySelector('.loading-spinner').style.display = 'block';
+        // Loading durumunu göster
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        loadingSpinner.style.display = 'block';
         
         // Form verilerini al
         const formData = {
@@ -94,8 +96,8 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         try {
-            // Simülasyonu çalıştır
-            const response = await fetch('/run_simulation', {
+            // API'ye istek at
+            const response = await fetch(`${API_URL}/api/simulate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -145,12 +147,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             console.error('Hata:', error);
-            alert('Simülasyon çalıştırılırken bir hata oluştu: ' + error.message);
+            showError('Simülasyon çalıştırılırken bir hata oluştu: ' + error.message);
         } finally {
-            // Yükleme durumunu kaldır
-            startButton.classList.remove('loading');
-            startButton.querySelector('.btn-text').style.visibility = 'visible';
-            startButton.querySelector('.loading-spinner').style.display = 'none';
+            loadingSpinner.style.display = 'none';
         }
     });
 
@@ -179,4 +178,51 @@ document.addEventListener('DOMContentLoaded', function() {
             navbar.style.backgroundColor = 'var(--primary-color)';
         }
     });
-}); 
+});
+
+function displayResults(data) {
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.style.display = 'block';
+    
+    // Sonuçları güncelle
+    document.getElementById('averageQueue').textContent = 
+        `${data.average_queue.toFixed(2)} araç`;
+    document.getElementById('maxQueue').textContent = 
+        `${data.max_queue} araç`;
+    document.getElementById('flowRate').textContent = 
+        `${data.flow_stats.flow_rate.toFixed(2)} araç/dakika`;
+    
+    // İstatistikleri güncelle
+    const statsDiv = document.getElementById('statistics');
+    if (statsDiv) {
+        statsDiv.innerHTML = `
+            <h3>Detaylı İstatistikler</h3>
+            <ul>
+                <li>Toplam Araç: ${data.flow_stats.total_vehicles}</li>
+                <li>Geçen Araç: ${data.flow_stats.passed_vehicles}</li>
+                <li>Ortalama Akış: ${data.flow_stats.average_flow.toFixed(2)} araç/dakika</li>
+            </ul>
+        `;
+    }
+    
+    // Sonuçlara kaydır
+    resultsDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
+}
+
+// Hız limiti değerini gösteren script
+const speedLimit = document.getElementById('speed_limit');
+const speedValue = document.getElementById('speedValue');
+if (speedLimit && speedValue) {
+    speedLimit.addEventListener('input', () => {
+        speedValue.textContent = speedLimit.value;
+    });
+} 
