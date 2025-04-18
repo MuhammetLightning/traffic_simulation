@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simülasyon - Trafik Akışı</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="nav-brand">Trafik Simülasyonu</a>
+            <ul class="nav-links">
+                <li><a href="/">Ana Sayfa</a></li>
+                <li><a href="/simulation" class="active">Simülasyon</a></li>
+                <li><a href="/about">Hakkında</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="simulation-page">
+        <main class="container">
+            <h1>Trafik Akışı Simülasyonu</h1>
+            
+            <div class="simulation-container">
+                <section class="simulation-controls">
+                    <h2>Simülasyon Parametreleri</h2>
+                    <form id="simulationForm" class="simulation-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="road_type">Yol Tipi</label>
+                                <select id="road_type" name="road_type" class="form-control" required>
+                                    <option value="">Seçiniz</option>
+                                    <option value="city">Şehir İçi (2 Şerit)</option>
+                                    <option value="highway">Otoyol (3 Şerit)</option>
+                                </select>
+                                <small class="form-text">Şehir içi veya otoyol seçeneklerinden birini belirleyin</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="vehicle_type">Araç Tipi</label>
+                                <select id="vehicle_type" name="vehicle_type" class="form-control" required>
+                                    <option value="">Seçiniz</option>
+                                    <option value="car">Otomobil (Max: 70 km/s)</option>
+                                    <option value="bus">Otobüs (Max: 50 km/s)</option>
+                                    <option value="truck">Kamyon (Max: 40 km/s)</option>
+                                </select>
+                                <small class="form-text">Simüle edilecek araç tipini seçin</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="speed_limit">Hız Limiti (km/s)</label>
+                                <input type="number" id="speed_limit" name="speed_limit" class="form-control" 
+                                       min="20" max="70" step="1" required>
+                                <small class="form-text speed-limit-text">Seçilen araç tipine göre maksimum hız otomatik ayarlanacaktır</small>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="startSimulation">
+                                <span class="btn-text">Simülasyonu Başlat</span>
+                                <div class="loading-spinner" style="display: none;"></div>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="simulation-info">
+                    <h2>Trafik Işığı Bilgileri</h2>
+                    <div class="traffic-light-cards">
+                        <div class="info-card city-info">
+                            <h3>Şehir İçi</h3>
+                            <div class="light-timing">
+                                <div class="timing red">
+                                    <span class="timing-label">Kırmızı Işık</span>
+                                    <span class="timing-value">60 saniye</span>
+                                </div>
+                                <div class="timing green">
+                                    <span class="timing-label">Yeşil Işık</span>
+                                    <span class="timing-value">40 saniye</span>
+                                </div>
+                            </div>
+                            <div class="road-info">
+                                <span class="info-label">Şerit Sayısı:</span>
+                                <span class="info-value">2</span>
+                            </div>
+                        </div>
+
+                        <div class="info-card highway-info">
+                            <h3>Otoyol</h3>
+                            <div class="light-timing">
+                                <div class="timing red">
+                                    <span class="timing-label">Kırmızı Işık</span>
+                                    <span class="timing-value">30 saniye</span>
+                                </div>
+                                <div class="timing green">
+                                    <span class="timing-label">Yeşil Işık</span>
+                                    <span class="timing-value">90 saniye</span>
+                                </div>
+                            </div>
+                            <div class="road-info">
+                                <span class="info-label">Şerit Sayısı:</span>
+                                <span class="info-value">3</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="simulation-results" style="display: none;">
+                    <h2>Simülasyon Sonuçları</h2>
+                    <div class="results-container">
+                        <div class="simulation-summary">
+                            <h3>Simülasyon Parametreleri</h3>
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <span class="summary-label">Yol Tipi:</span>
+                                    <span class="summary-value" id="resultRoadType">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Araç Tipi:</span>
+                                    <span class="summary-value" id="resultVehicleType">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Hız Limiti:</span>
+                                    <span class="summary-value" id="resultSpeedLimit">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Simülasyon Süresi:</span>
+                                    <span class="summary-value">1 saat (3600 saniye)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="results-grid">
+                            <div class="result-card">
+                                <h3>Ortalama Kuyruk</h3>
+                                <div class="result-value" id="averageQueue">-</div>
+                                <div class="result-label">araç</div>
+                                <div class="result-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Standart Sapma:</span>
+                                        <span class="detail-value" id="queueStdDev">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Medyan:</span>
+                                        <span class="detail-value" id="queueMedian">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="result-card">
+                                <h3>Maksimum Kuyruk</h3>
+                                <div class="result-value" id="maxQueue">-</div>
+                                <div class="result-label">araç</div>
+                                <div class="result-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Oluşma Zamanı:</span>
+                                        <span class="detail-value" id="maxQueueTime">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Süre:</span>
+                                        <span class="detail-value" id="maxQueueDuration">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="result-card">
+                                <h3>Trafik Akışı</h3>
+                                <div class="result-value" id="averageFlow">-</div>
+                                <div class="result-label">araç/dakika</div>
+                                <div class="result-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Toplam Araç:</span>
+                                        <span class="detail-value" id="totalVehicles">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Geçiş Oranı:</span>
+                                        <span class="detail-value" id="flowRate">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="graph-section">
+                            <div class="graph-header">
+                                <h3>Kuyruk Uzunluğu Grafiği</h3>
+                                <div class="graph-controls">
+                                    <button class="btn btn-sm" id="showRawData">Ham Veri</button>
+                                    <button class="btn btn-sm" id="downloadGraph">Grafiği İndir</button>
+                                </div>
+                            </div>
+                            <div class="graph-container">
+                                <div id="simulationGraph" class="graph">
+                                    <img src="" alt="Trafik Simülasyonu Grafiği" id="graphImage" style="display: none;">
+                                </div>
+                                <div class="graph-info">
+                                    <div class="info-item">
+                                        <span class="info-icon">📊</span>
+                                        <span class="info-text">X ekseni: Zaman (saniye)</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-icon">📈</span>
+                                        <span class="info-text">Y ekseni: Kuyruk Uzunluğu (araç)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="graph-description">
+                                Grafik, simülasyon süresince kuyruk uzunluğunun zamana göre değişimini gösterir. 
+                                Kırmızı noktalar maksimum kuyruk uzunluğunu, mavi çizgi ortalama değeri temsil eder.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Trafik Simülasyonu. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 
