@@ -13,7 +13,7 @@ async function runSimulation(event) {
     event.preventDefault();
     
     // Loading durumunu göster
-    const loadingSpinner = document.querySelector('.loading-spinner');
+    const loadingSpinner = document.querySelector('#startSimulation .loading-spinner');
     const resultsSection = document.querySelector('.simulation-results');
     
     if (loadingSpinner) loadingSpinner.style.display = 'block';
