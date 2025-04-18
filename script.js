@@ -1,5 +1,5 @@
-// API endpoint'i (Render'da deploy edildiğinde güncellenecek)
-const API_URL = 'https://traffic-simulation-api.onrender.com';
+// API endpoint'ini tanımla
+const API_URL = 'https://traffic-simulation-api.onrender.com/api/simulate';
 
 // Simülasyon formunu yakala
 document.addEventListener('DOMContentLoaded', function() {
@@ -23,7 +23,7 @@ async function runSimulation(event) {
 
     try {
         // API'ye istek at
-        const response = await fetch(`${API_URL}/api/simulate`, {
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -36,14 +36,14 @@ async function runSimulation(event) {
         });
 
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error('API yanıt vermedi');
         }
 
         const data = await response.json();
         displayResults(data);
     } catch (error) {
-        console.error('Error:', error);
-        showError('Simülasyon sırasında bir hata oluştu. Lütfen tekrar deneyin.');
+        console.error('Hata:', error);
+        alert('Simülasyon sırasında bir hata oluştu. Lütfen tekrar deneyin.');
     } finally {
         document.getElementById('loadingSpinner').style.display = 'none';
     }
