@@ -13,8 +13,11 @@ async function runSimulation(event) {
     event.preventDefault();
     
     // Loading durumunu göster
-    document.getElementById('loadingSpinner').style.display = 'block';
-    document.getElementById('results').style.display = 'none';
+    const loadingSpinner = document.querySelector('.loading-spinner');
+    const resultsSection = document.querySelector('.simulation-results');
+    
+    if (loadingSpinner) loadingSpinner.style.display = 'block';
+    if (resultsSection) resultsSection.style.display = 'none';
     
     // Form verilerini al
     const roadType = document.getElementById('roadType').value;
@@ -45,39 +48,64 @@ async function runSimulation(event) {
         console.error('Hata:', error);
         alert('Simülasyon sırasında bir hata oluştu. Lütfen tekrar deneyin.');
     } finally {
-        document.getElementById('loadingSpinner').style.display = 'none';
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
     }
 }
 
 function displayResults(data) {
-    const resultsDiv = document.getElementById('results');
-    resultsDiv.style.display = 'block';
+    const resultsSection = document.querySelector('.simulation-results');
+    if (resultsSection) {
+        resultsSection.style.display = 'block';
+    }
     
     // Sonuçları göster
-    document.getElementById('averageQueue').textContent = 
-        `Ortalama Kuyruk Uzunluğu: ${data.average_queue.toFixed(2)} araç`;
-    document.getElementById('maxQueue').textContent = 
-        `Maksimum Kuyruk Uzunluğu: ${data.max_queue} araç`;
-    document.getElementById('flowRate').textContent = 
-        `Trafik Akış Hızı: ${data.flow_stats.flow_rate.toFixed(2)} araç/dakika`;
-    
-    // İstatistikleri güncelle
-    updateStats(data.flow_stats);
-}
+    const resultElements = {
+        roadType: document.getElementById('resultRoadType'),
+        vehicleType: document.getElementById('resultVehicleType'),
+        speedLimit: document.getElementById('resultSpeedLimit'),
+        averageQueue: document.getElementById('averageQueue'),
+        maxQueue: document.getElementById('maxQueue'),
+        queueStdDev: document.getElementById('queueStdDev'),
+        queueMedian: document.getElementById('queueMedian'),
+        maxQueueTime: document.getElementById('maxQueueTime'),
+        maxQueueDuration: document.getElementById('maxQueueDuration'),
+        averageFlow: document.getElementById('averageFlow'),
+        totalVehicles: document.getElementById('totalVehicles'),
+        flowRate: document.getElementById('flowRate')
+    };
 
-function updateStats(flowStats) {
-    const statsDiv = document.getElementById('statistics');
-    if (statsDiv) {
-        statsDiv.innerHTML = `
-            <h3>Detaylı İstatistikler</h3>
-            <ul>
-                <li>Toplam Araç: ${flowStats.total_vehicles}</li>
-                <li>Geçen Araç: ${flowStats.passed_vehicles}</li>
-                <li>Ortalama Akış: ${flowStats.average_flow.toFixed(2)} araç/dakika</li>
-            </ul>
-        `;
+    // Sonuçları güncelle
+    if (resultElements.roadType) resultElements.roadType.textContent = data.road_type;
+    if (resultElements.vehicleType) resultElements.vehicleType.textContent = data.vehicle_type;
+    if (resultElements.speedLimit) resultElements.speedLimit.textContent = `${data.speed_limit} km/s`;
+    if (resultElements.averageQueue) resultElements.averageQueue.textContent = data.average_queue.toFixed(2);
+    if (resultElements.maxQueue) resultElements.maxQueue.textContent = data.max_queue;
+    if (resultElements.queueStdDev) resultElements.queueStdDev.textContent = data.queue_std_dev.toFixed(2);
+    if (resultElements.queueMedian) resultElements.queueMedian.textContent = data.queue_median.toFixed(2);
+    if (resultElements.maxQueueTime) resultElements.maxQueueTime.textContent = `${data.max_queue_time}s`;
+    if (resultElements.maxQueueDuration) resultElements.maxQueueDuration.textContent = `${data.max_queue_duration}s`;
+    if (resultElements.averageFlow) resultElements.averageFlow.textContent = data.flow_rate.toFixed(2);
+    if (resultElements.totalVehicles) resultElements.totalVehicles.textContent = data.total_vehicles;
+    if (resultElements.flowRate) resultElements.flowRate.textContent = `${data.flow_rate.toFixed(2)} araç/dakika`;
+
+    // Grafik gösterimi
+    const graphImage = document.getElementById('graphImage');
+    if (graphImage && data.graph_url) {
+        graphImage.src = data.graph_url;
+        graphImage.style.display = 'block';
     }
 }
+
+// Hız limiti değerini gösteren script
+document.addEventListener('DOMContentLoaded', function() {
+    const speedLimit = document.getElementById('speedLimit');
+    const speedValue = document.getElementById('speedValue');
+    if (speedLimit && speedValue) {
+        speedLimit.addEventListener('input', () => {
+            speedValue.textContent = speedLimit.value;
+        });
+    }
+});
 
 function showError(message) {
     const errorDiv = document.getElementById('error');
