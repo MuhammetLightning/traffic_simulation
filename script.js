@@ -1,5 +1,17 @@
 // API endpoint'ini tanımla
-const API_URL = 'https://traffic-simulation-api.onrender.com/api/simulate';
+const API_URL = 'https://traffic-simulation-api.onrender.com/run_simulation';
+
+// Araç ve yol tiplerinin dönüşüm tablosu
+const vehicleTypeMap = {
+    'Otomobil': 'car',
+    'Otobüs': 'bus',
+    'Kamyon': 'truck'
+};
+
+const roadTypeMap = {
+    'Şehir İçi': 'city',
+    'Otoyol': 'highway'
+};
 
 // Simülasyon formunu yakala
 document.addEventListener('DOMContentLoaded', function() {
@@ -24,9 +36,9 @@ async function runSimulation(event) {
         resultsSection.style.display = 'none';
     }
     
-    // Form verilerini al
-    const roadType = document.getElementById('roadType').value;
-    const vehicleType = document.getElementById('vehicleType').value;
+    // Form verilerini al ve dönüştür
+    const roadType = roadTypeMap[document.getElementById('roadType').value];
+    const vehicleType = vehicleTypeMap[document.getElementById('vehicleType').value];
     const speedLimit = parseInt(document.getElementById('speedLimit').value);
 
     try {
@@ -82,23 +94,23 @@ function displayResults(data) {
     };
 
     // Sonuçları güncelle
-    if (resultElements.roadType) resultElements.roadType.textContent = data.road_type;
-    if (resultElements.vehicleType) resultElements.vehicleType.textContent = data.vehicle_type;
-    if (resultElements.speedLimit) resultElements.speedLimit.textContent = `${data.speed_limit} km/s`;
+    if (resultElements.roadType) resultElements.roadType.textContent = document.getElementById('roadType').value;
+    if (resultElements.vehicleType) resultElements.vehicleType.textContent = document.getElementById('vehicleType').value;
+    if (resultElements.speedLimit) resultElements.speedLimit.textContent = `${document.getElementById('speedLimit').value} km/s`;
     if (resultElements.averageQueue) resultElements.averageQueue.textContent = data.average_queue.toFixed(2);
     if (resultElements.maxQueue) resultElements.maxQueue.textContent = data.max_queue;
-    if (resultElements.queueStdDev) resultElements.queueStdDev.textContent = data.queue_std_dev.toFixed(2);
-    if (resultElements.queueMedian) resultElements.queueMedian.textContent = data.queue_median.toFixed(2);
-    if (resultElements.maxQueueTime) resultElements.maxQueueTime.textContent = `${data.max_queue_time}s`;
-    if (resultElements.maxQueueDuration) resultElements.maxQueueDuration.textContent = `${data.max_queue_duration}s`;
-    if (resultElements.averageFlow) resultElements.averageFlow.textContent = data.flow_rate.toFixed(2);
-    if (resultElements.totalVehicles) resultElements.totalVehicles.textContent = data.total_vehicles;
-    if (resultElements.flowRate) resultElements.flowRate.textContent = `${data.flow_rate.toFixed(2)} araç/dakika`;
+    if (resultElements.queueStdDev) resultElements.queueStdDev.textContent = data.queue_std_dev?.toFixed(2) || '-';
+    if (resultElements.queueMedian) resultElements.queueMedian.textContent = data.queue_median?.toFixed(2) || '-';
+    if (resultElements.maxQueueTime) resultElements.maxQueueTime.textContent = data.max_queue_time ? `${data.max_queue_time}s` : '-';
+    if (resultElements.maxQueueDuration) resultElements.maxQueueDuration.textContent = data.max_queue_duration ? `${data.max_queue_duration}s` : '-';
+    if (resultElements.averageFlow) resultElements.averageFlow.textContent = data.flow_stats.average_flow.toFixed(2);
+    if (resultElements.totalVehicles) resultElements.totalVehicles.textContent = data.flow_stats.total_vehicles;
+    if (resultElements.flowRate) resultElements.flowRate.textContent = `${data.flow_stats.flow_rate.toFixed(2)} araç/dakika`;
 
     // Grafik gösterimi
     const graphImage = document.getElementById('graphImage');
-    if (graphImage && data.graph_url) {
-        graphImage.src = data.graph_url;
+    if (graphImage) {
+        graphImage.src = 'images/traffic_simulation_advanced_graph.png';
         graphImage.style.display = 'block';
     }
 }
