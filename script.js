@@ -13,11 +13,16 @@ async function runSimulation(event) {
     event.preventDefault();
     
     // Loading durumunu göster
-    const loadingSpinner = document.querySelector('#startSimulation .loading-spinner');
+    const loadingSpinner = document.getElementById('loadingSpinner');
     const resultsSection = document.querySelector('.simulation-results');
     
-    if (loadingSpinner) loadingSpinner.style.display = 'block';
-    if (resultsSection) resultsSection.style.display = 'none';
+    if (loadingSpinner) {
+        loadingSpinner.style.display = 'block';
+    }
+    
+    if (resultsSection) {
+        resultsSection.style.display = 'none';
+    }
     
     // Form verilerini al
     const roadType = document.getElementById('roadType').value;
@@ -48,7 +53,9 @@ async function runSimulation(event) {
         console.error('Hata:', error);
         alert('Simülasyon sırasında bir hata oluştu. Lütfen tekrar deneyin.');
     } finally {
-        if (loadingSpinner) loadingSpinner.style.display = 'none';
+        if (loadingSpinner) {
+            loadingSpinner.style.display = 'none';
+        }
     }
 }
 
