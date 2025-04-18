@@ -1,3 +1,93 @@
+// API endpoint'i (Render'da deploy edildiğinde güncellenecek)
+const API_URL = 'https://traffic-simulation-api.onrender.com';
+
+// Simülasyon formunu yakala
+document.addEventListener('DOMContentLoaded', function() {
+    const simulationForm = document.getElementById('simulationForm');
+    if (simulationForm) {
+        simulationForm.addEventListener('submit', runSimulation);
+    }
+});
+
+async function runSimulation(event) {
+    event.preventDefault();
+    
+    // Loading durumunu göster
+    document.getElementById('loadingSpinner').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    
+    // Form verilerini al
+    const roadType = document.getElementById('roadType').value;
+    const vehicleType = document.getElementById('vehicleType').value;
+    const speedLimit = parseInt(document.getElementById('speedLimit').value);
+
+    try {
+        // API'ye istek at
+        const response = await fetch(`${API_URL}/api/simulate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                road_type: roadType,
+                vehicle_type: vehicleType,
+                speed_limit: speedLimit
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        displayResults(data);
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Simülasyon sırasında bir hata oluştu. Lütfen tekrar deneyin.');
+    } finally {
+        document.getElementById('loadingSpinner').style.display = 'none';
+    }
+}
+
+function displayResults(data) {
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.style.display = 'block';
+    
+    // Sonuçları göster
+    document.getElementById('averageQueue').textContent = 
+        `Ortalama Kuyruk Uzunluğu: ${data.average_queue.toFixed(2)} araç`;
+    document.getElementById('maxQueue').textContent = 
+        `Maksimum Kuyruk Uzunluğu: ${data.max_queue} araç`;
+    document.getElementById('flowRate').textContent = 
+        `Trafik Akış Hızı: ${data.flow_stats.flow_rate.toFixed(2)} araç/dakika`;
+    
+    // İstatistikleri güncelle
+    updateStats(data.flow_stats);
+}
+
+function updateStats(flowStats) {
+    const statsDiv = document.getElementById('statistics');
+    if (statsDiv) {
+        statsDiv.innerHTML = `
+            <h3>Detaylı İstatistikler</h3>
+            <ul>
+                <li>Toplam Araç: ${flowStats.total_vehicles}</li>
+                <li>Geçen Araç: ${flowStats.passed_vehicles}</li>
+                <li>Ortalama Akış: ${flowStats.average_flow.toFixed(2)} araç/dakika</li>
+            </ul>
+        `;
+    }
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 5000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Form ve sonuç elementlerini seç
     const simulationForm = document.getElementById('simulationForm');
@@ -76,99 +166,6 @@ document.addEventListener('DOMContentLoaded', function() {
         link.href = graphImage.src;
         link.click();
     });
-
-    // Form gönderildiğinde
-    simulationForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        // Yükleme durumunu göster
-        startButton.classList.add('loading');
-        startButton.querySelector('.btn-text').style.visibility = 'hidden';
-        startButton.querySelector('.loading-spinner').style.display = 'block';
-        
-        // Form verilerini al
-        const formData = {
-            road_type: document.getElementById('road_type').value,
-            vehicle_type: vehicleTypeSelect.value,
-            speed_limit: parseInt(speedLimitInput.value)
-        };
-
-        try {
-            // Simülasyonu çalıştır
-            const response = await fetch('/run_simulation', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (!response.ok) {
-                throw new Error('Simülasyon çalıştırılırken bir hata oluştu');
-            }
-
-            const data = await response.json();
-            
-            // Simülasyon parametrelerini güncelle
-            resultElements.roadType.textContent = translations.road_types[formData.road_type];
-            resultElements.vehicleType.textContent = translations.vehicle_types[formData.vehicle_type];
-            resultElements.speedLimit.textContent = formData.speed_limit + ' km/s';
-            
-            // Ana sonuçları güncelle
-            resultElements.averageQueue.textContent = data.average_queue.toFixed(2);
-            resultElements.maxQueue.textContent = data.max_queue;
-            
-            // Detaylı sonuçları güncelle
-            if (data.queue_stats) {
-                resultElements.queueStdDev.textContent = data.queue_stats.std_dev.toFixed(2);
-                resultElements.queueMedian.textContent = data.queue_stats.median.toFixed(2);
-            }
-            
-            if (data.max_queue_info) {
-                resultElements.maxQueueTime.textContent = formatTime(data.max_queue_info.time);
-                resultElements.maxQueueDuration.textContent = formatDuration(data.max_queue_info.duration);
-            }
-            
-            if (data.flow_stats) {
-                resultElements.averageFlow.textContent = data.flow_stats.average_flow.toFixed(2);
-                resultElements.totalVehicles.textContent = data.flow_stats.total_vehicles;
-                resultElements.flowRate.textContent = data.flow_stats.flow_rate.toFixed(2) + ' araç/dk';
-            }
-            
-            // Grafiği göster
-            graphImage.src = '/images/traffic_simulation_advanced_graph.png?' + new Date().getTime();
-            graphImage.style.display = 'block';
-
-            // Sonuçlar bölümünü göster ve kaydır
-            resultsSection.style.display = 'block';
-            resultsSection.scrollIntoView({ behavior: 'smooth' });
-
-        } catch (error) {
-            console.error('Hata:', error);
-            alert('Simülasyon çalıştırılırken bir hata oluştu: ' + error.message);
-        } finally {
-            // Yükleme durumunu kaldır
-            startButton.classList.remove('loading');
-            startButton.querySelector('.btn-text').style.visibility = 'visible';
-            startButton.querySelector('.loading-spinner').style.display = 'none';
-        }
-    });
-
-    // Yardımcı fonksiyonlar
-    function formatTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    }
-
-    function formatDuration(seconds) {
-        if (seconds < 60) {
-            return `${seconds} saniye`;
-        }
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes} dk ${remainingSeconds} sn`;
-    }
 
     // Responsive menü için
     const navbar = document.querySelector('.navbar');

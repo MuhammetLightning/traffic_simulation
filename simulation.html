@@ -29,31 +29,27 @@
                     <form id="simulationForm" class="simulation-form">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="road_type">Yol Tipi</label>
-                                <select id="road_type" name="road_type" class="form-control" required>
-                                    <option value="">Seçiniz</option>
-                                    <option value="city">Şehir İçi (2 Şerit)</option>
-                                    <option value="highway">Otoyol (3 Şerit)</option>
+                                <label for="roadType">Yol Türü:</label>
+                                <select id="roadType" required>
+                                    <option value="Şehir İçi">Şehir İçi</option>
+                                    <option value="Otoyol">Otoyol</option>
+                                    <option value="Ara Yol">Ara Yol</option>
                                 </select>
-                                <small class="form-text">Şehir içi veya otoyol seçeneklerinden birini belirleyin</small>
                             </div>
 
                             <div class="form-group">
-                                <label for="vehicle_type">Araç Tipi</label>
-                                <select id="vehicle_type" name="vehicle_type" class="form-control" required>
-                                    <option value="">Seçiniz</option>
-                                    <option value="car">Otomobil (Max: 70 km/s)</option>
-                                    <option value="bus">Otobüs (Max: 50 km/s)</option>
-                                    <option value="truck">Kamyon (Max: 40 km/s)</option>
+                                <label for="vehicleType">Araç Türü:</label>
+                                <select id="vehicleType" required>
+                                    <option value="Otomobil">Otomobil</option>
+                                    <option value="Kamyon">Kamyon</option>
+                                    <option value="Motosiklet">Motosiklet</option>
                                 </select>
-                                <small class="form-text">Simüle edilecek araç tipini seçin</small>
                             </div>
 
                             <div class="form-group">
-                                <label for="speed_limit">Hız Limiti (km/s)</label>
-                                <input type="number" id="speed_limit" name="speed_limit" class="form-control" 
-                                       min="20" max="70" step="1" required>
-                                <small class="form-text speed-limit-text">Seçilen araç tipine göre maksimum hız otomatik ayarlanacaktır</small>
+                                <label for="speedLimit">Hız Limiti (km/s):</label>
+                                <input type="range" id="speedLimit" min="30" max="120" value="50" step="5">
+                                <span id="speedValue">50</span>
                             </div>
                         </div>
 
@@ -221,5 +217,13 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        // Hız limiti değerini gösteren script
+        const speedLimit = document.getElementById('speedLimit');
+        const speedValue = document.getElementById('speedValue');
+        speedLimit.addEventListener('input', () => {
+            speedValue.textContent = speedLimit.value;
+        });
+    </script>
 </body>
 </html> 
