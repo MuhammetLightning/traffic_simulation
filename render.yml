@@ -3,8 +3,10 @@ services:
     name: traffic-simulation-api
     env: python
     region: frankfurt
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:5000 server:app
+    buildCommand: |
+      pip install -r requirements.txt
+      python -c "import matplotlib; matplotlib.use('Agg')"
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 0 server:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
@@ -12,5 +14,7 @@ services:
         value: production
       - key: FLASK_APP
         value: server.py
+      - key: PORT
+        value: 5000
     healthCheckPath: /health
     autoDeploy: true
