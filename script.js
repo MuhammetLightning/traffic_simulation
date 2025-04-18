@@ -112,6 +112,68 @@ document.addEventListener('DOMContentLoaded', function() {
             speedValue.textContent = speedLimit.value;
         });
     }
+
+    // Araç tiplerine göre maksimum hızlar
+    const maxSpeeds = {
+        'Otomobil': 70,
+        'Otobüs': 50,
+        'Kamyon': 40
+    };
+
+    // Araç tipi değiştiğinde hız limitini güncelle
+    const vehicleType = document.getElementById('vehicleType');
+    if (vehicleType) {
+        vehicleType.addEventListener('change', function() {
+            const selectedVehicle = this.value;
+            if (selectedVehicle && maxSpeeds[selectedVehicle]) {
+                const maxSpeed = maxSpeeds[selectedVehicle];
+                if (speedLimit) {
+                    speedLimit.max = maxSpeed;
+                    
+                    // Eğer mevcut değer maksimum hızdan yüksekse, maksimum hıza ayarla
+                    if (parseInt(speedLimit.value) > maxSpeed) {
+                        speedLimit.value = maxSpeed;
+                        if (speedValue) {
+                            speedValue.textContent = maxSpeed;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Ham veri gösterimi ve grafik indirme
+    const showRawData = document.getElementById('showRawData');
+    if (showRawData) {
+        showRawData.addEventListener('click', function() {
+            alert('Bu özellik yakında eklenecek');
+        });
+    }
+
+    const downloadGraph = document.getElementById('downloadGraph');
+    if (downloadGraph) {
+        downloadGraph.addEventListener('click', function() {
+            const graphImage = document.getElementById('graphImage');
+            if (graphImage && graphImage.src) {
+                const link = document.createElement('a');
+                link.download = 'trafik_simulasyonu_grafik.png';
+                link.href = graphImage.src;
+                link.click();
+            }
+        });
+    }
+
+    // Responsive menü için
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                navbar.style.backgroundColor = 'rgba(44, 62, 80, 0.9)';
+            } else {
+                navbar.style.backgroundColor = 'var(--primary-color)';
+            }
+        });
+    }
 });
 
 function showError(message) {
